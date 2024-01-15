@@ -12,7 +12,7 @@ const siteMetadata = {
   socialBanner: '/static/images/twitter-card.png',
   email: 'cb45yskw8@mozmail.com',
   github: 'https://github.com/indahud',
-  twitter: 'https://twitter.com/Indie_h4cker',
+  twitter: 'https://twitter.com/0xsanketh',
   linkedin: 'https://www.linkedin.com/in/sanket-shete-15064318b',
   locale: 'en-US',
   analytics: {

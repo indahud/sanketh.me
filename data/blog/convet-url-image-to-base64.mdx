@@ -1,0 +1,51 @@
+---
+title: 'Convert URL image into bas64 in NodeJS'
+date: '2024-01-15'
+tags: ['NodeJS', 'base64']
+draft: false
+summary: Easily convert image from URL into bas64 
+---
+
+Have you ever been in a situation where, you have URL of the image. But instead of URL you need to send the image in Base64 format.  
+I have written a small function to achieve this. 
+I will try to explain the code step by step 👇
+
+
+```JavaScript
+const axios = require('axios');
+
+const convertToBase64 = async (imageUrl) => {
+  const result = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+	  headers: { Accept: 'image/*' },
+  });
+  const contentType = result.headers['content-type'];
+  const base64Image = Buffer.from(result.data, 'binary').toString('base64');
+  const previewImage = `data:${contentType};base64,${base64Image}`
+  return previewImage;
+};
+
+const IMAGE_URL = "https://picsum.photos/id/91/200/300.jpg"
+convertToBase64(IMAGE_URL);
+```
+
+To convert the image into bas64, we have to fetch the image first. I am using axios for fetching the image.
+
+Few options are provided to axios while fetching the image. 
+- #### responseType is arraybuffer because we are dealing with binary data. 
+- #### headers are set to accept image of any type. 
+With the help of wildcard `*` we are accepting image of any type. We might need image's mime type / content type while previewing the image.    
+
+result will return array buffer data and its content-type will be in headers. 
+
+We will create Buffer object from binary data. We will use `Buffer.from()` method for it. It accepts 2 parameters. 
+First parameter is binary data and second is encoding. 
+
+`toString()` method will convert data into base64 string.
+
+To preview the base64 image we need to use certain data URI
+- #### data - is prefix for the URI
+- #### contentType: specifies the mime type (type of image .jpg, .png etc.)
+- #### ;base64,: indicates that the data is base64 encoded.  
+
+If everything went well then you can preview your base64 image [here](https://jaredwinick.github.io/base64-image-viewer)  
