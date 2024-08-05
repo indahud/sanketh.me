@@ -1,0 +1,296 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  author: 'Sanketh',
+  date: '2024-01-21',
+  title: 'MongoDB aggregation pipelines examples',
+  description:
+    'MongoDB aggregation examples. Simple queries to nested queries explained thoroughly.',
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+### Tools Of Trade
+- [MongoDB](https://www.mongodb.com/docs/manual/installation/) 
+- [Mongo Compass](https://www.mongodb.com/products/tools/compass)
+
+I am assuming you have MongoDB installed on your system or you are using Mongo Atlas. 
+You can my use my [docker file](https://github.com/indahud/dot_files/blob/main/docker/mongo_compose.yml) for quick setup.<br />
+I am using MongoDB Compass to write aggregation pipelines. Compass is graphical tool from MongoDB. You are free to use whatever you like. 
+Compass has some very nice features like exporting pipeline to your preferred programming language, import pipeline, saving pipeline for later usage.
+
+### Basics
+If you are familiar with JavaScript then aggregation pipeline is array of objects. Where each object is stage. 
+You can think of it as conveyor belt where each stage performs some operation on data and passes its output to next stage. Few examples would be $match, $lookup, $unwind, $project etc.
+
+### Schema
+Before we start writing writing aggregation pipelines, I want to show you fields inside different collections. 
+I have 2 collections in my <b>fairbnb</b> database. You can get database data from [here](https://github.com/indahud/blog_data/tree/main/MongoDB).
+- listing collection schema
+
+![listing schema](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/cvtwb3axqdqigo2huy5f.png)
+
+- profile collection schema
+
+![profile schema](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/wsh351x1ba7ls592bqk7.png)
+
+### Examples 🚀🚀
+---
+### Simple match :
+- <b>$match</b>: 
+match stage is used to filter out documents based on specific condition/condtions.
+
+Here we are trying to match field `profileID`. It will return matching profileID documents from collection. 
+
+```shell
+[
+  {
+    $match: {
+      profileID:
+        "a74ffc48-4534-4b9c-980f-b0d57b96cf8e",
+    },
+  },
+]
+```
+>If your only goal is to filter out the matching documents then `find()` method can be used instead.
+
+`find({ profileID: "a74ffc48-4534-4b9c-980f-b0d57b96cf8e" })`
+
+### Match with $and, $or operators :
+Now consider you have little more complex situation than this. Where you have multiple conditions, based on that you have to filter the data. We can use different operators to achieve this.
+- <b>$and:</b> It is same as logical AND operator in many programming languages. All true expressions will evaluate to true. It takes array with one or more expressions. 
+
+```shell
+[
+  {
+    $match: {
+      $and: [
+        {
+          profileID:
+            "a74ffc48-4534-4b9c-980f-b0d57b96cf8e",
+        },
+        {
+          propertyType: "Apartment",
+        },
+      ],
+    },
+  },
+]
+```
+We have multiple propertyTypes in profile collection. But we only want to filter out Apartment with certain profileID.
+We are using $and inside `$match` stage. We are matching `profileID` and `propertyType` fields in the expression.
+
+It will only return documents if it matches both profileID and propertyType provided by us.
+
+- <b>$or: </b> It is similar to logical OR operator. Any one true expression will evaluate to true.
+
+```shell
+[
+  {
+    $match: {
+      $or: [
+        {
+          propertyType: "Apartment",
+        },
+        {
+          price: {
+            $lt: 4000,
+          },
+        },
+      ],
+    },
+  },
+]
+```
+If the propertyType is Apartment or price is less than 4000 then it will return the matching documents.
+We are using comparison operator `$lt` ( less than ) to filter out documents where price is below 4000.
+
+### Using $and and $or operators together :
+There might be some cases where we might want to use `$and` and `$or` operators together.
+Consider this scenario, we must match a certain profileID, and either propertyType can be `Apartment` or listingType can be `For Sale`
+We are using both `$and` and `$or` operators inside $match stage.
+```shell
+[
+  {
+    $match: {
+      $and: [
+        {
+          profileID:
+            "a74ffc48-4534-4b9c-980f-b0d57b96cf8e",
+        },
+        {
+          $or: [
+            {
+              propertyType: "Apartment",
+            },
+            {
+              listingType: "For Sell",
+            },
+          ],
+        },
+      ],
+    },
+  },
+]
+
+```
+$and operator takes 2 expressions. First is `profileID` and second is `$or` operator.
+$or operator takes 2 expressions `propertyType` and `listingType`.
+
+### Lookup
+Consider we want to show listing documents. 
+Along with that we also need to show its owners information like their firstName, lastName, coverImage, profileImage etc.
+We will use $lookup stage to get data from different collection.
+
+```shell
+[
+  {
+    $match: {
+      profileID:
+        "a74ffc48-4534-4b9c-980f-b0d57b96cf8e",
+    },
+  },
+  {
+    $lookup: {
+      from: "profile",
+      localField: "profileID",
+      foreignField: "profileID",
+      as: "profileDetails",
+    },
+  },
+  {
+    $unwind: {
+      path: "$profileDetails",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      "profileDetails._id": 0,
+      "profileDetails.profileID": 0,
+    },
+  },
+]
+```
+- <b>$lookup:</b> 
+Is used to perform a left outer join between two collections.
+Like the name suggests `$lookup` will look inside different collections. 
+It will match the field and add its response as new field inside current document.
+
+$lookup stage is accepting 4 fields:
+- <b>from:</b> Collection name we want join.
+- <b>localField:</b> Field name from the collection we are performing aggregation on.
+- <b>foreignField:</b> Field name from the collection we are joining (same as local)
+- <b>as:</b> Name of the new field. It can be of your choice.
+
+First we are creating profile in `profile` collection. Based on that `profileID` we are creating the listing.
+So we can match the `profileID` in profile collection. lookup will return array as its output.
+
+- <b>$unwind:</b> 
+unwind stage will turn array items into its own document. We need to pass arrays path to unpack the array. path will start  with `$`.
+
+Sometimes it is possible that field we are trying to match in different collection doesn't exists. 
+We have an optional boolean field `preserveNullAndEmptyArrays` to keep or remove that document.
+If we set `preserveNullAndEmptyArrays` to true it will keep the document without specific field. Setting it to false will remove the document from result.
+
+In our case there will be one item in profileDetails array. profileDetails field will be now object
+
+- <b>$project:</b>
+The $project stage is used to reshape the document. Fields can be included / excluded from the documents. We are removing few fields that are not required. Fields can be excluded with <b>fieldName: 0</b> and to only include certain fields <b>fieldName: 1</b> can be used. 
+
+Since profileDetails is object we can exclude the fields inside it with dot notation.
+You cannot perform inclusion and exclusion together. It needs to be either inclusion or exclusion.
+
+### Lookup with pipeline :
+We can use pipeline inside $lookup stage if you want to match multiple fields or you want to perform more operations in the lookup.
+It might not be possible with $localField and $foreignField in lookup.
+
+> I'm aware that we can directly match profileID in the listing collection. I am doing it this way for this example.
+
+```shell
+[
+  {
+    $match: {
+      profileID:
+        "a74ffc48-4534-4b9c-980f-b0d57b96cf8e",
+    },
+  },
+  {
+    $lookup: {
+      from: "listing",
+      let: {
+        profileID: "$profileID",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $eq: [
+                    "$profileID",
+                    "$$profileID",
+                  ],
+                },
+                {
+                  $eq: [
+                    "$propertyType",
+                    "Apartment",
+                  ],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+          },
+        },
+        {
+          $skip: 0,
+        },
+        {
+          $limit: 1,
+        },
+      ],
+      as: "listings",
+    },
+  },
+]
+```
+Different stages are used inside pipeline.
+Fields can't be directly accessed inside pipeline. We have to define it as variable with let. That variable can be accessed inside pipeline with `$$`.
+
+`$expr` is requierd because we are referencing profileID from `let` inside `$match` stage.  
+
+`$skip` stage will remove n documents and `$limit` stage will show n documents.
+
+### Group :
+$group stage is used to group document according to specific key / keys and perform operations on it. `_id` field is key for that document.
+
+```shell
+[
+  {
+    $match: {
+      profileID:
+        "a74ffc48-4534-4b9c-980f-b0d57b96cf8e",
+    },
+  },
+  {
+    $group: {
+      _id: "$propertyType",
+      count: {
+        $sum: 1,
+      },
+    },
+  },
+]
+```
+It will return the count for different `propertyType` for the `profileID`

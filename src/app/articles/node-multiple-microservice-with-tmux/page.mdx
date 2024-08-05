@@ -1,0 +1,116 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  author: 'Sanketh',
+  date: '2023-11-29',
+  title: 'Run multiple node.js microservices with tmux',
+  description:
+    'Easily run multiple Node.js microservices on Linux, MacOS and Windows without using too much resource.',
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+In this guide I will show you how you can use tmux to run multiple NodeJS microservices with single command.
+
+You will need tmux for this. Tmux is supported for Linux, MacOS and Windows (WSL). If you want to install it, instructions are [here](https://github.com/tmux/tmux/wiki/Installing).
+
+## What is tmux ?
+
+Tmux is terminal multiplexer. It lets you create different windows, panes, sessions for terminal.
+Multiple terminal seesions can be created with single terminal window. You can detach/attach sessions pretty easily.
+Tmux is highly customizable. You can add your own key bindings, colors and other settings.
+
+## Little backstory
+In my everyday job I need to run multiple ExpressJS microservices for different projects.
+
+To run microservices I need to do the couple of things everytime:
+> - Going inside Microservice directory.
+> - Split Window into 3/4 parts to manage it.
+
+I usually manage split windows like this
+> - 1st split window/pane for running the code / checking the logs
+> - 2nd split window/pane for managing the git submodule
+> - 3rd split window/pane for opening repo in code editor / changing the git branches
+
+It takes a lot of time & energy to do this everytime. That's why I created this little bash script for this.
+
+We are going to use this bash script with tmux to automate our workflow.
+Then we will assign this bash script as alias. 
+It will run different microservices for project with single command.
+
+```Bash
+#!/bin/bash
+
+SESSION_NAME="PROJECT_X"
+
+# Directory Names
+DIR_ONE="$HOME/some_project/auth_directory"
+DIR_TWO="$HOME/some_project/profile_directory"
+
+# Window Names
+WINDOW_ONE="auth"
+WINDOW_TWO="profile"
+
+#Commands
+DEV="npm run dev" 
+CL="clear"
+
+tmux new-session -d -s $SESSION_NAME
+
+# Auth microservice Window
+tmux new-window -t $SESSION_NAME:1 -n $WINDOW_ONE
+tmux split-window -h
+tmux split-window -v -t 0
+tmux send-keys -t $SESSION_NAME:1.0 "cd $DIR_ONE && $CL" C-m
+tmux send-keys -t $SESSION_NAME:1.1 "cd $DIR_ONE && $CL" C-m
+tmux send-keys -t $SESSION_NAME:1.2 "cd $DIR_ONE && $CL && $DEV" C-m
+
+# Profile microservice Window
+tmux new-window -t $SESSION_NAME:2 -n $WINDOW_TWO
+tmux split-window -h
+tmux split-window -v -t 0
+tmux send-keys -t $SESSION_NAME:2.0 "cd $DIR_TWO && $CL" C-m
+tmux send-keys -t $SESSION_NAME:2.1 "cd $DIR_TWO && $CL" C-m
+tmux send-keys -t $SESSION_NAME:2.2 "cd $DIR_TWO && $CL && $DEV" C-m
+
+tmux -u attach -t $SESSION_NAME
+
+```
+
+## How it is works?
+
+I have defined session name, directory paths and window names in bash script.
+It will create two windows with 3 panes in each window. After that it will run `npm run dev` in one pane.
+I created 3 panes here but you can add as many as you want.
+
+## How to create Alias ?
+> Check which shell you are using.  
+
+Run this command `echo $0` to check your shell. It could be bash/zsh. For zsh you need to create alias in `.zshrc` file. For bash create alias in `.bashrc` file
+
+Now we need to tell `.zshrc/.bashrc` alias that my script exists in this directory.
+Lets consider your bash script resides in `$HOME/Scripts` directory.
+
+Create alias like this in `.zshrc/.bashrc` file.
+
+```Bash
+    alias project_x="$HOME/Scripts/tmux.sh"
+```
+
+## Dont forget to change the bash file permission.
+
+```Bash
+    chmod +x tmux.sh  
+```
+## Refersh environment variables
+
+```Bash
+    source .zshrc
+```
+## Final result
+![tmux](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g4jhfeapyj1vagf3vjqg.png)
