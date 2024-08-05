@@ -1,5 +1,5 @@
 import { type Metadata } from 'next';
-
+import { Analytics } from '@vercel/analytics/react';
 import { Providers } from '@/app/providers';
 import { Layout } from '@/components/Layout';
 import './globals.css';
@@ -7,11 +7,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: {
     template: '%s - Sanketh',
-    default:
-      'Sanketh - Software Developer, Indie Hacker',
+    default: 'Sanketh - Software Developer, Indie Hacker',
   },
-  description:
-    'I’m Sanket, a software developer based in PUne, India.',
+  description: 'I’m Sanket, a software developer based in PUne, India.',
   alternates: {
     types: {
       'application/rss+xml': `${process.env.NEXT_PUBLIC_SITE_URL}/feed.xml`,
@@ -29,7 +27,10 @@ export default function RootLayout({
       <body className="flex h-full bg-zinc-50 dark:bg-black">
         <Providers>
           <div className="flex w-full">
-            <Layout>{children}</Layout>
+            <Layout>
+              {children}
+              <Analytics />
+            </Layout>
           </div>
         </Providers>
       </body>
