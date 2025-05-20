@@ -14,16 +14,30 @@ const projects = [
   {
     name: 'App link Opener',
     description:
-      'Useful for content creators and marketing people. Improves likes, comments, sales by opening links directly in specific application.',
-    link: { href: 'http://openr.app', label: 'openr.app' },
+      'Web app to open links from websites like Youtube, Spotify, Amazon and others into their mobile applications. It supports all platforms like Android, IOS or browsers.',
+    link: { href: 'https://udgam-gifts-prod.vercel.app', label: 'openr.app' },
     logo: `${CLOUDFLARE_BUCKET_PUBLIC}/openr_app.svg`,
   },
   {
     name: 'Upi Link Generator',
     description:
-      'Easily accept UPI payments through single link. It supports any UPI enabled application.',
-    link: { href: 'http://getupilink.com', label: 'getupilink' },
+      'Users can easily accpet UPI payments with single link. It doesnt need any registration.',
+    link: { href: 'https://getupilink.com', label: 'getupilink' },
     logo: `${CLOUDFLARE_BUCKET_PUBLIC}/getupilink.svg`
+  },
+  {
+    name: 'Gift Packaging Website',
+    description:
+      'Ecommerce like Website for Diwali gift hampers packaging business. It displays curated list of gift hampers, their images and option to order it.',
+    link: { href: 'https://udgamgifts.com', label: 'getupilink' },
+    logo: `${CLOUDFLARE_BUCKET_PUBLIC}/udgam_logo.svg`
+  },
+  {
+    name: 'Smoke Log',
+    description:
+      'Mobile app to keep track of daily cigarettes smoking. Detailed weekly / monthly insights with barcharts and heatmaps.',
+    link: { href: '/', label: 'getupilink' },
+    logo: `${CLOUDFLARE_BUCKET_PUBLIC}/adaptive-icon-2.webp`
   },
   //   {
   //     name: 'HelioStream',
