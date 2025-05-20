@@ -29,14 +29,14 @@ const projects = [
     name: 'Gift Packaging Website',
     description:
       'Ecommerce like Website for Diwali gift hampers packaging business. It displays curated list of gift hampers, their images and option to order it.',
-    link: { href: 'https://udgamgifts.com', label: 'getupilink' },
+    link: { href: 'https://udgamgifts.com', label: 'udgam gifts' },
     logo: `${CLOUDFLARE_BUCKET_PUBLIC}/udgam_logo.svg`
   },
   {
     name: 'Smoke Log',
     description:
       'Mobile app to keep track of daily cigarettes smoking. Detailed weekly / monthly insights with barcharts and heatmaps.',
-    link: { href: '/', label: 'getupilink' },
+    link: { href: '/', label: 'smoke log' },
     logo: `${CLOUDFLARE_BUCKET_PUBLIC}/adaptive-icon-2.webp`
   },
   //   {
