@@ -15,7 +15,7 @@ const projects = [
     name: 'App link Opener',
     description:
       'Web app to open links from websites like Youtube, Spotify, Amazon and others into their mobile applications. It supports all platforms like Android, IOS or browsers.',
-    link: { href: 'https://udgam-gifts-prod.vercel.app', label: 'openr.app' },
+    link: { href: 'https://app-openr-prod.vercel.app', label: 'openr.app' },
     logo: `${CLOUDFLARE_BUCKET_PUBLIC}/openr_app.svg`,
   },
   {
